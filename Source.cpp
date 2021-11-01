@@ -1,379 +1,606 @@
 #include <iostream>
+
+#include <fstream>    
 #include <string>
-#include <iomanip>     // for setw
-#include "randgen.h"
-using namespace std;
 #include <vector>
+#include "strutils.h"
+#include <algorithm> 
+using namespace std;
+ 
 
-
-void sort(const vector<vector<char>> & mat1 , vector<vector<char>> & mat2 , int rows, int cols, bool issecound )
+struct courseNode  //given coursenode  
 {
+	 string courseCode, courseName;
+	 vector<int> studentsAttendingIDs;
+	 courseNode * next;
+};
+ 
 
-	int j,k ;
-	for (j=0; j < rows; j++)
-    {
-		for (k=0; k < cols; k++)
-        {
-			
-				int adjesent;
-				adjesent = 48;
-				
-				if ( j>= 1 && k>= 1 )
-				{
-					if (mat1[j-1][k-1] == 'B')
-					{
-						adjesent += 1;
-						//cout<<"kas";
-						
-					}
-				}
-				if (j>= 1)
-				{
-					if (mat1[j-1][k] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (j>= 1 && k+2 <= cols ) // && k+1 <= cols
-				{
-					if (mat1[j-1][k+1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (k>= 1)
-				{
-					if (mat1[j][k-1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (k+2  <= cols )
-				{
-					if (mat1[j][k+1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (j+2 <= rows && k+2  <= cols )
-				{
-					if (mat1[j+1][k+1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-			
-				if (j+2 <= rows)
+struct Node *head=NULL;//Declaring starting points
+struct courseNode *head1=NULL;
+struct courseNode *head2=NULL;
+ 
+
+
+void insertNode0(string code , string name,string sayi){  //addding  new course code and do nessercy unit conversions.
+    struct courseNode *newNode=new courseNode;
+	newNode->courseCode=code;
+	newNode->courseName=name;
+	int kal =atoi(sayi);
+	newNode->studentsAttendingIDs.push_back(kal);
+	
+
+    newNode->next=head1;
+    head1=newNode;
+	
+}
+ 
+//Traverse/ display all nodes (print items)
+
+/*
+void display0(){
+    if(head1==NULL){
+        cout<<"List is empty!"<<endl;
+        return;
+    }
+    struct courseNode *temp=head1;
+    while(temp!=NULL){
+		cout<<temp->courseCode<<" ";
+		cout<<temp->courseName<<": ";
+		for (auto i = temp->studentsAttendingIDs.begin(); i !=  temp->studentsAttendingIDs.end(); ++i) //https://www.geeksforgeeks.org/vector-in-cpp-stl/
+			cout << *i << " ";
+		cout<<endl;
+
+        temp=temp->next;
+    }
+   // cout<<endl;
+}*/
+void display1(bool son){
+    if(head1==NULL){
+        cout<<"List is empty!"<<endl;
+        return;
+    }
+    struct courseNode *temp=head1;
+    while(temp!=NULL){
+		cout<<temp->courseCode<<" ";
+		cout<<temp->courseName;
+		if (temp->studentsAttendingIDs.size()>=3 ||  son == false) //cheching if it is final output display  and decide if a course will be close
+		{
+			cout<<": ";
+			for (auto i = temp->studentsAttendingIDs.begin(); i !=  temp->studentsAttendingIDs.end(); ++i) //https://www.geeksforgeeks.org/vector-in-cpp-stl/ i got this for loop that site
+				cout << *i << " ";
+		}else
+		{
+			cout<<" -> This course will be closed";
+		}
+
+		cout<<endl;
+
+        temp=temp->next;
+    }
+   // cout<<endl;
+}
+void bul0(string kod,string ders, string id ){
+	bool exst= false;
+	int kal =atoi(id);
+    struct courseNode *temp=head1;
+    while(temp!=NULL){
+		if (temp->courseCode== kod )//checks if eleement already exists
+		{
+
+			temp->studentsAttendingIDs.push_back(kal); // it adds to vector
+			sort(temp->studentsAttendingIDs.begin(), temp->studentsAttendingIDs.end());// https://iq.opengenus.org/sorting-vector-in-cpp/ <- got from there it sorts the vectr.
+			exst = true;
+
+		}
+        temp=temp->next;
+    }
+	if (exst == false)
+	{
+		insertNode0(kod,ders,id); // if given lesson doesnt exsit it creates here
+		//sort(temp.stud.begin(), v.end()); 
+	}
+}
+void bul0_ek(string kod,string ders, string id ){//adds nessercy addtional students
+	bool exst= false;
+	bool icinde = false;
+	int kal =atoi(id);
+    struct courseNode *temp=head1;
+    while(temp!=NULL){//checks if designated lessons contians in link list
+		//cout<<kod<<endl<<ders<<id;
+		if (temp->courseCode== kod ) 
+		{
+			for (auto i = temp->studentsAttendingIDs.begin(); i !=  temp->studentsAttendingIDs.end(); ++i) //https://www.geeksforgeeks.org/vector-in-cpp-stl 
+			{
+				if (*i == kal)//checks if given lessons contains gicen id
 				{
 					
-					if (mat1[j+1][k] == 'B')
-					{
-						adjesent += 1;
-					}
+					icinde = true;
 				}
-				if (j+2 <= rows && k>= 1)
+			}
+	
+			if (icinde==true)
+			{
+
+				cout<<"Student with id "<<id<<" already is enrolled to "<<kod<<". No action taken."<<endl;
+			}else
+			{
+				cout<<"Student with id "<<id <<" is enrolled to "<<kod<<"."<<endl;
+				temp->studentsAttendingIDs.push_back(kal);
+				sort(temp->studentsAttendingIDs.begin(), temp->studentsAttendingIDs.end());// https://iq.opengenus.org/sorting-vector-in-cpp/
+			}
+			
+			exst = true;
+
+		}
+        temp=temp->next;
+    }
+	if (exst == false)//if lessons doenst exist it creates new lesson
+	{
+		cout<<kod<<" does not exist in the list of Courses. It is added up. "<<endl;
+		insertNode0(kod,ders,id);
+		
+		cout<<"Student with id "<<id <<" is enrolled to "<<kod<<"."<<endl;
+		//sort(temp.stud.begin(), v.end()); 
+
+
+	}
+}
+void bul0_sil(string kod,string ders, string id ){
+	bool exst= false;
+	bool icinde = false;
+	int kal =atoi(id);
+	int yer =0;
+    struct courseNode *temp=head1;
+	
+    while(temp!=NULL){
+		//cout<<kod<<endl<<ders<<id;
+		if (temp->courseCode== kod ) //detects if given lesson exist in list 
+		{
+			for (auto i = temp->studentsAttendingIDs.begin(); i !=  temp->studentsAttendingIDs.end(); ++i) //https://www.geeksforgeeks.org/vector-in-cpp-stl/ checks if given id exist in 
+			{
+				if (*i == kal && temp->courseCode == kod)
 				{
-						if (mat1[j+1][k-1] == 'B')
-					{
-						adjesent += 1;
-					}
+					
+					icinde = true;
 				}
-
-
-
-				mat2[j][k] = (char)adjesent;
-				adjesent = 48;
-
+				else if(icinde == false)
+				{
+					yer+=1;
+				}
 				
 			}
-       
+			
+	   
+			if (icinde==true)
+			{
 
+				cout<<"Student with id "<<id<<" has dropped "<<kod<<endl;
+				//temp->studentsAttendingIDs.erase(); 
+				//erase(temp->studentsAttendingIDs,temp->studentsAttendingIDs[0]);
+				//ugantus deletus
+				temp->studentsAttendingIDs.erase(temp->studentsAttendingIDs.begin()+yer);//removes given number from vector
+			}else 
+			{
+				cout<<"Student with id "<<id<<" is not enrolled to "<<kod<<", thus he can't drop that course."<<endl;
+			}
+			
+			exst = true;
+
+		}
+        temp=temp->next;
+    }
+	if (exst == false)
+	{
+		cout<<kod<<" does not exist in the list of Courses. It is added up. "<<endl;
+		insertNode0(kod,ders,id);
+		cout<<"Student with id "<<id <<" is enrolled to "<<kod<<"."<<endl;
+		//sort(temp.stud.begin(), v.end()); 
 
 
 	}
 }
 
-void Print(const vector<vector<char>> & mat)
+
+void parcala1(string str,string & tmp_code,string &tmp_name,string &tmp_id)
 {
-    for (int j=0; j < mat.size(); j++)
-    {   
-		for (int k=0; k < mat[0].size(); k++)
-        {   
-			cout << setw(4) << mat[j][k];
-        }
-        cout << endl;
+	int length,ina;
+	  string kelime,sid,sal,sal1;
+	  str += " ";
+      length = str.length();
+        ina = 0;
+    for (int i = 0; i < length; i++) 
+    {
+       if(int(str.at(i)) != 32 && int(str.at(i)) != 9 )
+        {
+         kelime+=str.at(i);   
+        }else{ //disects given line and seprates 3 three parts(this part is only made for 3 parted txt file it is only for coursesandstudnets.txt format)
+			if (ina == 0)
+			{
+				tmp_code = kelime;
+			}
+     
+			if (ina == 1)
+			{
+				tmp_name = kelime;
+			}
+     
+			if (ina == 2)
+			{
+				tmp_id =kelime;
+			}
+			//cout<<kelime<<endl;
+			ina +=1;
+            kelime= "";
+        }      
     }
 }
-void Print1(const vector<vector<char>>  mat , int a ,int b ,const vector<vector<char>> & mat1)
+void parcala2(string str,string & tmp_code,string &tmp_name,string &tmp_id,bool & drop)
 {
+	
+	int length,ina,hadi;
+	  string kelime,sid,sal,sal1;
+	  bool atma = false;
+	  str += " ";
+      length = str.length();
+        ina = 0;
+    for (int i = 0; i < length; i++) 
+    {
+       if(int(str.at(i)) != 32 && int(str.at(i)) != 9 ) //checks if is charcter " " or tab.
+        {
+         kelime+=str.at(i);   //constructs ids names  codes to diffrent strings 
+        }else{
 
-	cout<<"Displaying the surrounding of ("<<a<<","<<b<<"): \n";
-    for (int j=0; j < mat.size(); j++)
-    {   
-		for (int k=0; k < mat[0].size(); k++)
-		{  
-
-			cout << setw(4);
-
-            if ( j == a && k == b)
+			
+			if (atoi(kelime) >= 1) //checks if given constructed is numeric or alphabetic
 			{
-				cout << mat1[j][k];
+				tmp_id = kelime;
+				//cout<<"@@@@@"<<tmp_code<<tmp_name<<tmp_id<<endl;
+				if (drop == false)//checks if it isa addtion or removel process
+				{
+						bul0_ek(tmp_code,tmp_name,tmp_id);
+						//sortlist0();
+				}else if( drop == true)
+					{
+
+						bul0_sil(tmp_code,tmp_name,tmp_id);
+
+							//cout<<"@@@@@"<<tmp_code<<tmp_name<<tmp_id<<endl;
+						//	cout<<"7777"<<tmp_code<<tmp_name<<tmp_id<<endl;
+
+							//bul0_sil(tmp_code,tmp_name,tmp_id);
+					}
+			
 			}else
-			{
-				cout << mat[j][k];
+			{ // holds values of code and namme of lessons until line providies new alpabetic strings.When it revices alpahabetic strings it replaces old ones
+				if(ina == 0)
+				{
+					tmp_code= kelime;
+					ina +=1;
+					//cout<<"?????"<<tmp_code<<endl;
+				
+				}
+				else if(ina == 1)
+				{
+				
+					tmp_name= kelime;
+					ina= 0;
+				}
+
 			}
 
 
 			
-        }
-        cout << endl;
+            kelime= "";
+        }      
     }
+}
 
-	//cout<<"\nAround ("<<a<<","<<b<<") you have "<< mat1[a][b] <<"bomb(s)\n";
+void dele()
+{
+	struct courseNode *temp=head1;
+    while(temp!=NULL)
+	{
+		temp = temp->next;
+	}
 
 }
 
-
-int main()
-{
-
-	RandGen gen;
-	int j,k,temp;
-    int rows, cols,bomb,bomb1;
-	int rowchosen , colchosen;
-	char temp1;
-	string depo;
-	bool exist,issecound;
-	exist = false ;
-	depo = "acdf";
-	cout << "Give the dimensions of the matrix: ";
-    cin >> rows >> cols;
+void sortlist0(){//devam
+	bool ok = false;
+	int i = 0;
+	string name,name1,code,code1;
+	vector<int> id,id1;
+	courseNode *ok0, *ok1;
 	
-	vector<vector<char>> mat(rows, vector<char>(cols));
-	vector<vector<char>> mat1(rows, vector<char>(cols));
-	vector<vector<char>> mat2(rows, vector<char>(cols));
-	//vector<vector<char>> mat(rows,cols));
-	// a vector of vector<int> who has row many elements, which are vector<int>, all 0
-	cout << "How many bombs:  ";
-    cin >> bomb;
-	if (bomb <= 0 || bomb >= rows*cols )
-	{
-		do
-		{
-			if (bomb >= rows*cols)
+    if(head1==NULL){
+        cout<<"List is empty!"<<endl;
+        return;
+    }
+    struct courseNode *temp=head1;
+    struct courseNode *temp1=head2;
+	struct courseNode *temptemp=head1;
+	/*for ( temp = head1;temp!= NULL;temp=temp->next)
+	 {
+
+		 cout<<"@@@@"<<temp->courseName<<endl;
+		 		for ( temp1=temp->next;temp1 != NULL;temp1 =temp1->next)
+					 {
+
+						 cout<<"qq"<<temp1->courseName<<endl;
+					 }
+
+	 }
+	*/
+
+
+
+	 for ( temp = head1;temp!= NULL;temp=temp->next)
+	 {
+		// cout<<"@@@@"<<temp->courseName<<endl;
+		 //for (temp1=temp->next;temp1 != NULL;temp1 =temp1->next /* temp1 = head1;temp1!= NULL;temp1=temp1->next*/)
+		 for (temp1=temp->next;temp1 != NULL;temp1 =temp1->next/* temp1 = head1;temp1!= NULL;temp1=temp1->next*/)
+		 {
+			// cout<<"qq"<<temp1->courseName<<endl;
+			 int sayac= 0;
+			 ok = false;
+			while (ok == false)
 			{
-				cout <<"The number of bombs can not be greater than the whole number of cells minus one. Please give the number of bombs again: ";
-				cin >> bomb;
+				if (int(temp->courseName.at(sayac))!=int(temp1->courseName.at(sayac)) && ok ==false) //cheks if two strings are same 
+				{
+					//cout<<"!!!!!!"<<temp->courseName<<temp1->courseName<<endl;
+					ok = true;
+					//cout<<"kalas"<<endl;
+					//cout<<temp->courseName.at(sayac)<<temp1->courseName.at(sayac)<<endl;
+					if (int(temp->courseName.at(sayac))>int(temp1->courseName.at(sayac))) // checks  which one alphabetically comes first  
+					{
+						//cout<<"!!!!!!"<<temp->courseName<<temp1->courseName<<endl;
+						//cout<<temp->courseName.at(sayac)<<temp1->courseName.at(sayac)<<endl;
+						//cout<<temp->courseName<<"@@0"<<temp1->courseName<<endl;
+					//	temp->courseName += "bok";
+						
+						//temptemp->next = temp->next;
+						//cout<<temptemp<<temp<<temp1<<endl;
+						/*
+						temp->next = temp1->next;
+						temp1->next = temptemp->next;*/
+
+						/*
+						temptemp->courseCode = temp->courseCode;
+						temptemp->courseName = temp->courseName;
+						temptemp->studentsAttendingIDs = temp->studentsAttendingIDs;
+						//temptemp->next = temp->next;
+
+						temp->courseCode = temp1->courseCode;
+						temp->courseName = temp1->courseName;
+						temp->studentsAttendingIDs = temp1->studentsAttendingIDs;
+						//temp->next = temp1->next;
+
+						
+						temp1->courseCode = temptemp->courseCode;
+						temp1->courseName = temptemp->courseName;
+						temp1->studentsAttendingIDs = temptemp->studentsAttendingIDs;
+						*/
+						//cout<<"////?TEMP0"<<temp->courseCode<<temp->courseName<<endl;
+						//cout<<"////?TEMP1"<<temp1->courseCode<<temp1->courseName<<endl;
+						
+						code = temp->courseCode; //swaps the values of two nodes
+						name = temp->courseName;
+						id = temp->studentsAttendingIDs;
+						code1 = temp1->courseCode;
+						name1 = temp1->courseName;
+						id1 = temp1->studentsAttendingIDs;
+						temp->courseCode = code1;
+						temp->courseName = name1;
+						temp->studentsAttendingIDs = id1;
+						temp1->courseCode = code;
+						temp1->courseName = name;
+						temp1->studentsAttendingIDs = id;
+						//cout<<"////TEMP0"<<temp->courseCode<<temp->courseName<<endl;
+						//cout<<"////TEMP1"<<temp1->courseCode<<temp1->courseName<<endl;
+						 //sal
+					//	temp1->next = temptemp->next;
+						/*
+						code = temp->courseCode;
+						name = temp->courseName;
+						id = temp->studentsAttendingIDs;
+						ok0 = temp->next;
+						
+						code1 = temp1->courseCode;
+						name1 = temp1->courseName;
+						id1 = temp1->studentsAttendingIDs;
+						ok1 = temp1->next;
+
+						temp->courseCode = code1;
+						temp->courseName = name1;
+						temp->studentsAttendingIDs = id1;
+						temp->next = ok1;
+						
+						temp1->courseCode = code;
+						temp1->courseName = name;
+						temp1->studentsAttendingIDs = id;
+						temp1->next = ok0;
+						*/
+		               
+					}
+
+				}
+				sayac+=1;
+			}
+		 }
+	 }
+	 /*
+    while(temp!=NULL)
+	{
+		while (temp1!=NULL)
+		{
+			while ()
+			{
+
+			}
+		}
+			 
+        temp=temp->next;
+    }*/
+    
+}
+
+int main(){
+
+	ifstream infile; 
+	string dosya,tmp_code,tmp_name,tmp_id;
+	string tmp_code1,tmp_name1,tmp_id1;
+	string tmp_code2,tmp_name2,tmp_id2;
+
+	string stringFromFile;
+	bool ilk = true;
+	int k;
+	bool son = false;
+	cout<<"Please enter file name:"<<endl;
+	cin>> dosya;
+	//dosya = "coursesAndStudents.txt"; //for quick testing
+	infile.open(dosya); 
+		if(infile.fail()) //Display error if the file failed to open
+	{
+	cout<<"Input file failed to open";
+	}
+	else
+	{
+		while (getline(infile,  stringFromFile)) //gets lines from file
+		{
+
+			if (ilk == true)
+			{
+
+				/*
+				parcala1(stringFromFile,tmp_code,tmp_name,tmp_id);
+				//courseNode *head = constructList();
+				//courseNode* ptr = head;
+				head1 ->courseCode = tmp_code;
+				head1 ->courseName = tmp_name;
+				head1 ->next = nullptr;
+				k = atoi(tmp_id);
+				head1 ->studentsAttendingIDs.push_back(k);
+				printList1(head1);*/
+				parcala1(stringFromFile,tmp_code,tmp_name,tmp_id);
+				
+				insertNode0(tmp_code,tmp_name,tmp_id);
+				cout<<"Successfully opened file "<<dosya<<endl;
+				cout<<"The linked list is created. "<<endl;
+				cout<<"The initial list is: "<<endl;
+				ilk = false;
+				//creates first node and initlazies the list 
+			
 			}else
 			{
-				cout << "The number of bombs could not be less than one. Please give the number of bombs again: ";
-	            cin >> bomb;
-
+				parcala1(stringFromFile,tmp_code,tmp_name,tmp_id);//adds other lines to link list
+				bul0(tmp_code,tmp_name,tmp_id);
+				
 			}
 
 
+		}
+		
+		infile.close();
 
-
-		} while (bomb <= 0 || bomb >= rows*cols );
-	
-	}
-
-    for (j=0; j < rows; j++)
-    {
-		for (k=0; k < cols; k++)
-        {
-			mat[j][k] = 'X';
-        }
-    }
-	bomb1 = bomb; 
-	mat2 = mat1;
+		//display1(son);
+	sortlist0();
+	//cout<<"gor"<<endl;
+	display1(son);
+	string gelicek,gelicek1;
+	bool drop;
+	ifstream infile1; 
+	int ply_scm;
+	//it takes inputs and calls the nessercy functions
 	do
 	{
-		bomb = bomb1;
-		for (j=0; j < rows; j++)	
+		cout<<endl<<"Please select one of the choices:"<<endl;
+		cout<<"1. Add to List"<<endl;
+		cout<<"2. Drop from List"<<endl;
+		cout<<"3. Display List"<<endl;
+		cout<<"4. Finish Add/Drop and Exit"<<endl;
+		cin>> ply_scm;
+		if (ply_scm == 3)
 		{
-
-			for (k=0; k < cols; k++)
-			{/*
-				temp1 = gen.RandChar("123B");
-				if (temp1 == 'B' && bomb != 0)
-				{
-					bomb -=1;
-					mat1[j][k] = 'B';
-				}else 
-				{
-					mat1[j][k] = gen.RandChar("123");
-				}
-				*/
-				temp1 = gen.RandChar("FDKCB");
-				if (temp1 == 'B' && bomb != 0)
-				{
-					bomb -=1;
-					mat1[j][k] = 'B';
-				}else 
-				{
-					mat1[j][k] = temp1;
-				}
-			}
+			cout<<"The current list of course and the students attending them:"<<endl;
+			sortlist0();
+			display1(son);
 		}
-	} while (bomb != 0);
-
-
-
-	for (j=0; j < rows; j++)
-    {
-		for (k=0; k < cols; k++)
-        {
+		if (ply_scm == 1)
+		{
+			cout<<"Give the student ID and the course names and course codes that he/she wants to add:"<<endl;
+			cin.ignore();
+			getline(cin,gelicek);
 			
-			if (mat1[j][k] != 'B')
-			{
-				int adjesent;
-				adjesent = 48;
-				
-				if ( j>= 1 && k>= 1 )
-				{
-					if (mat1[j-1][k-1] == 'B')
-					{
-						adjesent += 1;
-						//cout<<"kas";
-						
-					}
-				}
-				if (j>= 1)
-				{
-					if (mat1[j-1][k] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (j>= 1 && k+2 <= cols ) // && k+1 <= cols
-				{
-					if (mat1[j-1][k+1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (k>= 1)
-				{
-					if (mat1[j][k-1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (k+2  <= cols )
-				{
-					if (mat1[j][k+1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (j+2 <= rows && k+2  <= cols )
-				{
-					if (mat1[j+1][k+1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
 			
-				if (j+2 <= rows)
-				{
-					
-					if (mat1[j+1][k] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
-				if (j+2 <= rows && k>= 1)
-				{
-						if (mat1[j+1][k-1] == 'B')
-					{
-						adjesent += 1;
-					}
-				}
+			drop = false;
+			parcala2(gelicek,tmp_code1,tmp_name1,tmp_id1,drop);
+			sortlist0();
+			//bul0(tmp_code1,tmp_name1,tmp_id1);
+			/*cin>>gelicek;
+			getline(infile1,  gelicek);
+			parcala1(gelicek,tmp_code1,tmp_name1,tmp_id1);
+			cout<<tmp_code1<<tmp_name1<<tmp_id1<<endl;
+			*/
+			/*
+			parcala1(gelicek,tmp_code1,tmp_name1,tmp_id1);
+			cout<<tmp_code1<<tmp_name1<<tmp_id1<<endl;*/
 
+		}
+		if (ply_scm == 2)
+		{
+	       
+			cout<<"Give the student ID and the course names and course codes that he/she wants to drop:"<<endl;
+			cin.ignore();
+			getline(cin,gelicek1);
+			drop = true;
+			
+			//parcala2(gelicek,tmp_code1,tmp_name1,tmp_id1,drop);
+			/*
+			parcala2(gelicek,tmp_code2,tmp_name2,tmp_id2,drop);
+			cout<<"***"<<tmp_code2<<tmp_name2<<tmp_id2<<endl;
+			bul0_sil(tmp_code2,tmp_name2,tmp_id2);
 
+			drop = false;
+			*/
 
-				mat1[j][k] = (char)adjesent;
-				adjesent = 48;
+			parcala2(gelicek1,tmp_code2,tmp_name2,tmp_id2,drop);//diespcts the line
+		}
 
-				
-			}
-        }
-    }
-	mat2 = mat1;
-	sort(mat1,mat2,rows,cols,issecound);
-	
-    Print(mat);
-	cout<<endl;
-    Print(mat1);
-	cout<<endl;
-	Print(mat2);
-
-	while(exist == false)
+	} while (ply_scm != 4);
+	cout<<"The add/drop period is finished. Printing the final list of courses and students attending them."<<endl;
+	cout<<"NOTE: Courses with less than 3 students will be closed this semester."<<endl;
+	sortlist0();
+	son = true;
+	display1(son); //final specail output display
+	courseNode *temp7=head1;
+	courseNode *temp9=head1;
+	 //deletes  the link list
+	while (temp7!= NULL)
 	{
-		
-		cout <<"Press: \n \n" ;
-		cout<<"1. If you want to find out the surrounding of a cel \n";
-		cout<<"2. If you want to open the cell \n";
-		cout<<"3. If you want to exit. \n";
-
-		cin >> temp;
-		while ( temp > 3 || temp < 1 )
-		{
-		cout<<"Your input is wrong. Please select one of the options: 1, 2 or 3. \n";
-		cin >> temp;
-		
-		}
-
-		if (temp == 3)
-		{
-			exist = true;
-			
-			cout<<"\nProgram exiting ...\n";
-		}
-		if (temp == 2)//opeing celss
-		{
-			cout<<"Give the coordinates: ";
-			cin >> rowchosen >> colchosen ;
-			while (rowchosen >= rows || rowchosen < 0 || colchosen >= cols || colchosen < 0 )
-			{
-				cout<<"It is out of range. Please give a valid coordinates:" ;
-				cin >> rowchosen >> colchosen ;
-			}
-			mat[rowchosen][colchosen] = mat1[rowchosen][colchosen];
-			cout<<"Opening cell ("<<rowchosen<<","<<colchosen<<"): \n";
-			Print(mat);
-			if (mat1[rowchosen][colchosen] == 'B')
-			{
-				exist = true;
-
-				cout<<"\nUnfortunately, you stepped on a mine";
-				cout<<"\nArrangement of mines: \n";
-				Print(mat1);
-
-				cout<<"\n>>>>> Game Over! <<<<<";
-
-			}
-				
-
-		}
-		if (temp == 1)
-		{
-			cout<<"Give the coordinates: ";
-			cin >> rowchosen >> colchosen ;
-			while (rowchosen >= rows || rowchosen < 0 || colchosen >= cols || colchosen < 0 )
-			{
-				cout<<"It is out of range. Please give a valid coordinates: ";
-				cin >> rowchosen >> colchosen ;
-			}
-			Print1(mat,rowchosen,colchosen,mat2);
-			
-
-		}
-
+		 temp9 = temp7;
+		 temp9= temp7->next;
+		//cout<<temp7->courseCode<<"sda"<<temp9->courseCode<<endl;
+		 //cout<<"deletd one "<<temp7->courseCode<<endl;
+		 free(temp7);
+		 temp7 =temp9;
+	}
+	 return 0;
+	/*
+	for ( temp7 = head1;temp7!= NULL;temp7=temp7->next)
+	 {
+		 temp9 = temp7;
+		 cout<<temp7->courseCode<<endl<<temp9->courseCode<<endl;
+		 delete temp9;
+		 cout<<temp7->courseCode<<endl<<temp9->courseCode<<endl;
+	}
+	*/
+	//display1(son);
+	
+   
 
 
 
 	}
-
+		
 }
